@@ -13,10 +13,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1"),
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
+
+        // Convert
         .target(
             name: "ConvertCore",
             dependencies: []
@@ -29,8 +32,18 @@ let package = Package(
             name: "Convert",
             dependencies: [
                 "ConvertCore",
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
-            ]
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
+            path: "Sources/Convert"
+        ),
+        // TaskManager
+        .executableTarget(
+            name: "TaskManager",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SQLite", package: "SQLite.swift"),
+            ],
+            path: "Sources/TaskManager"
         ),
     ]
 )

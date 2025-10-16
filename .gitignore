@@ -64,3 +64,4 @@ fastlane/test_output
 .swiftpm
 .claude/settings.local.json
 .vscode
+*.sqlite3
