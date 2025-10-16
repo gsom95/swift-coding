@@ -58,6 +58,17 @@ extension TaskManager {
         static let configuration = CommandConfiguration(
             abstract: "Show the task list."
         )
+
+        func run() throws {
+            let db = try Connection(TaskManager.dbName)
+            let tasksTable = Table("tasks")
+            let expressions = TaskExpressions()
+            
+            for task in try db.prepare(tasksTable) {
+                let status = task[expressions.isCompleted] ? "[x]" : "[ ]"
+                print("\(task[expressions.id]): \(task[expressions.title]) \(status)")
+            }
+        }
     }
 }
 
@@ -66,7 +77,24 @@ extension TaskManager {
 extension TaskManager {
     struct Complete: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Complete the task from the task list."
+            abstract: "Complete the task from the task list.",
+            aliases: ["done"]
         )
+
+        @Option(name: .shortAndLong, help: "The ID of the task to complete.")
+        var id: Int64
+
+        func run() throws {
+            let db = try Connection(TaskManager.dbName)
+            let tasksTable = Table("tasks")
+            let expressions = TaskExpressions()
+            
+            let task = tasksTable.filter(expressions.id == id)
+            if try db.run(task.update(expressions.isCompleted <- true)) > 0 {
+                print("Task \(id) marked as completed.")
+            } else {
+                print("Task with ID \(id) not found.")
+            }
+        }
     }
 }
